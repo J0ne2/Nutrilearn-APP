@@ -57,7 +57,7 @@ NutriLearn is built using robust backend technologies to ensure scalability, per
 - *Authentication:* JWT-based secure login system  
 - *Payments:* IntaSend API integration  
 - *AI/ML:* OpenAI API (for assistant & recommendations)  
-- *Hosting/Deployment:* [Heroku / AWS / Render / Vercel backend services]  
+- *Hosting/Deployment:* [Netlify backend services]  
 
 ---
 
