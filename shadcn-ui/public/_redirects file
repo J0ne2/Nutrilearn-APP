@@ -1,0 +1,5 @@
+# Netlify SPA Redirects - Handle client-side routing
+/*    /index.html   200
+
+# Optional: Force HTTPS for all requests
+# /*    https://:splat    301!
