@@ -67,5 +67,6 @@ For support, partnerships, or collaboration inquiries:
 - 📩 *Prudence Oyando* – [prudenceoyando@gmail.com](mailto:prudenceoyando@gmail.com)  
 
 ---
+Even after submission,we continue with revision so as to better the quality of the app.
 
 ✨ NutriLearn – Transform your health with *AI-powered nutrition.*
