@@ -52,8 +52,8 @@ This allows users across Africa and beyond to *subscribe, purchase plans, or upg
 
 ## 🛠 Tech Stack (Backend-Focused)
 NutriLearn is built using robust backend technologies to ensure scalability, performance, and security:  
-- *Backend Framework:* [Node.js / Express] (or Django/FastAPI if applicable)  
-- *Database:* [MongoDB / PostgreSQL]  
+- *frontend Framework:* [react js
+- *Database:* [SupaBase]  
 - *Authentication:* JWT-based secure login system  
 - *Payments:* IntaSend API integration  
 - *AI/ML:* OpenAI API (for assistant & recommendations)  
