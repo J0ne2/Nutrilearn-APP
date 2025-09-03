@@ -556,8 +556,11 @@ document.addEventListener('DOMContentLoaded', async function() {
     document.getElementById('logout-btn').addEventListener('click', logout);
     
     // Upgrade button
-    document.getElementById('upgrade-btn').addEventListener('click', showSubscriptionModal);
-    
+   function showSubscriptionModal() {
+  console.log("Subscription modal triggered!");
+  // Add your modal logic here
+   }
+
     // Add meal buttons
     document.getElementById('add-meal-btn').addEventListener('click', showAddMeal);
     document.querySelector('#no-meals button').addEventListener('click', showAddMeal);
