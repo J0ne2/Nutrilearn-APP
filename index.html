@@ -5,12 +5,11 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>NutriLearn App</title>
   <style>
-    /* Minimal styling for demo */
     body { font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; margin: 0; padding: 1rem; background: #f7f7fb; color: #222; }
     .container { max-width: 1000px; margin: 0 auto; }
     header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
     .hidden { display: none; }
-    .card { background: #fff; padding: 1rem; border-radius: 8px; 更新：box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+    .card { background: #fff; padding: 1rem; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
     .grid { display: grid; gap: 1rem; grid-template-columns: 1fr 320px; align-items: start; }
     button { cursor: pointer; padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid #ddd; background: #fff; }
     .btn-primary { background: #0b76ff; color: #fff; border-color: #0b76ff; }
@@ -24,10 +23,13 @@
     #subscription-modal { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.4); }
     #subscription-modal .card { width: 320px; }
   </style>
-  <!-- Chart.js from CDN (deferred) -->
+  <!-- Chart.js from CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
-  <!-- App script (served from /public on Netlify) -->
+  <!-- IntaSend SDK -->
+  <script src="https://cdn.intasend.com/intasend-inline.js" defer></script>
+  <!-- App scripts -->
   <script type="module" src="/script.js" defer></script>
+  <script type="module" src="/payment.js" defer></script>
 </head>
 <body>
   <div class="container">
@@ -109,14 +111,14 @@
     </section>
   </div>
 
-  <!-- Subscription modal (hidden by default) -->
+  <!-- Subscription modal -->
   <div id="subscription-modal" class="hidden">
     <div class="card">
       <h3>Subscribe</h3>
       <p>Choose a plan</p>
       <div style="display: flex; gap: 0.5rem;">
         <button id="subscribe-card-btn" class="btn-primary">Card</button>
-        <button id="subscribe-paypal-btn">PayPal</button>
+        <button id="subscribe-mpesa-btn">M-Pesa</button>
       </div>
       <div style="margin-top: 0.5rem;">
         <button id="close-modal">Close</button>
@@ -127,6 +129,7 @@
   <!-- Inline script to initialize app -->
   <script type="module">
     import { getCurrentUser, login, signUp, logout, getFoodItems, logMeal, getUserMeals, saveSubscription } from '/script.js';
+    import { initiatePayment } from '/payment.js';
 
     async function initApp() {
       console.log('🚀 NutriLearn App Loaded Successfully');
@@ -179,7 +182,7 @@
           food.protein * (portionSize / 100),
           food.carbs * (portionSize / 100),
           food.fats * (portionSize / 100),
-          'lunch', // Default meal type
+          'lunch',
           portionSize
         );
         await updateDashboard(user.id);
@@ -191,13 +194,19 @@
 
       document.getElementById('subscribe-card-btn')?.addEventListener('click', async () => {
         const user = await getCurrentUser();
-        if (user) await saveSubscription(user.id, 'monthly_card');
+        if (user) {
+          await initiatePayment(user.id, 'monthly', 'card');
+          await saveSubscription(user.id, 'monthly_card');
+        }
         document.getElementById('subscription-modal').classList.add('hidden');
       });
 
-      document.getElementById('subscribe-paypal-btn')?.addEventListener('click', async () => {
+      document.getElementById('subscribe-mpesa-btn')?.addEventListener('click', async () => {
         const user = await getCurrentUser();
-        if (user) await saveSubscription(user.id, 'monthly_paypal');
+        if (user) {
+          await initiatePayment(user.id, 'monthly', 'mpesa');
+          await saveSubscription(user.id, 'monthly_mpesa');
+        }
         document.getElementById('subscription-modal').classList.add('hidden');
       });
 
@@ -207,19 +216,16 @@
     }
 
     async function updateDashboard(userId) {
-      // Populate food select
       const foods = await getFoodItems();
       const foodSelect = document.getElementById('food-select');
       foodSelect.innerHTML = foods.map(food => `<option value='${JSON.stringify(food)}'>${food.name}</option>`).join('');
 
-      // Update meals list and stats
       const meals = await getUserMeals(userId);
       const mealsList = document.getElementById('meals-list');
       mealsList.innerHTML = meals.length
         ? `<h3>Today's Meals</h3><ul>${meals.map(meal => `<li>${meal.food_name} (${meal.portion_size}g): ${meal.calories}kcal</li>`).join('')}</ul>`
         : `<h3>Today's Meals</h3><p style="color: #666; text-align: center;">No meals logged yet today</p>`;
 
-      // Update stats
       const totalCalories = meals.reduce((sum, meal) => sum + meal.calories, 0);
       const totalProtein = meals.reduce((sum, meal) => sum + meal.protein, 0);
       const totalCarbs = meals.reduce((sum, meal) => sum + meal.carbs, 0);
@@ -229,7 +235,6 @@
       document.getElementById('carbs-consumed').textContent = `${totalCarbs.toFixed(1)}g`;
       document.getElementById('fat-consumed').textContent = `${totalFat.toFixed(1)}g`;
 
-      // Update chart
       const ctx = document.getElementById('nutrition-chart').getContext('2d');
       new Chart(ctx, {
         type: 'bar',
@@ -251,4 +256,3 @@
   </script>
 </body>
 </html>
-     
