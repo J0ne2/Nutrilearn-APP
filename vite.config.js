@@ -1,43 +1,21 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react-swc";
-import path from "path";
-import { viteSourceLocator } from "@metagptx/vite-plugin-source-locator";
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
 
-export default defineConfig(({ mode }) => ({
-  plugins: [
-    viteSourceLocator({
-      prefix: "mgx",
-    }),
-    react(),
-  ],
+// Vite configuration
+export default defineConfig({
+  plugins: [react()],
+  root: '.', // root is the project folder (index.html is here)
+  build: {
+    outDir: 'dist',     // where the production build goes
+    emptyOutDir: true,  // clean before build
+  },
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
+      '@': '/src', // now you can import with "@/..." instead of long paths
     },
   },
-  build: {
-    // Enable brotli compression size reporting to analyze bundle size
-    brotliSize: true,
-
-    // Minify with esbuild (default), can use terser for more options if needed
-    minify: "esbuild",
-
-    // Target modern browsers for smaller polyfill output
-    target: "esnext",
-
-    // Rollup options to split vendor code and optimize caching
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          if (id.includes("node_modules")) {
-            // Bundle all dependencies into a separate chunk
-            return "vendor";
-          }
-        },
-      },
-    },
-
-    // Enable sourcemaps for production debugging (optional, disable if size is concern)
-    sourcemap: false,
+  server: {
+    port: 5173,  // dev server port
+    open: true,  // auto-open in browser on dev
   },
-}));
+})
