@@ -3,379 +3,220 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NutriLearn - Track Your Nutrition</title>
-    <meta name="description" content="Track your meals, monitor your calories, and stay healthy with NutriLearn">
+    <title>NutriLearn - Smart Nutrition Tracking</title>
+    <meta name="description" content="Track your nutrition, reach your health goals with NutriLearn - Smart meal tracking with M-Pesa payments">
+    <meta name="author" content="NutriLearn">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="NutriLearn - Smart Nutrition Tracking">
+    <meta property="og:description" content="Track your nutrition, reach your health goals with NutriLearn">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://nutrilearnapp.netlify.app">
+    
+    <!-- Favicon -->
     <link rel="icon" href="https://public-frontend-cos.metadl.com/mgx/img/favicon.png" type="image/png">
-    <link rel="stylesheet" href="assets/styles.css">
     
-
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Supabase -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
     
     <!-- Chart.js for nutrition charts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <!-- Intasend SDK -->
-    <script src="https://unpkg.com/intasend-inlinejs-sdk@3.0.4/lib/intasend.js"></script>
-    
 </head>
-<body class="bg-gradient-to-br from-green-50 to-blue-50 min-h-screen">
-    <!-- Loading Screen -->
-    <div id="loading" class="fixed inset-0 bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center z-50">
-        <div class="text-center">
-            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
-            <p class="text-gray-600">Loading NutriLearn...</p>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav">
+            <div class="logo">🥗 NutriLearn</div>
+            <div id="nav-buttons">
+                <!-- Navigation buttons will be inserted here -->
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Welcome/Login Section -->
+        <div id="welcome-section" class="card">
+            <div class="text-center">
+                <h1 style="font-size: 2.5rem; margin-bottom: 1rem; background: linear-gradient(45deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                    Welcome to NutriLearn
+                </h1>
+                <p style="font-size: 1.2rem; margin-bottom: 2rem; color: #666;">
+                    Track your nutrition, reach your health goals
+                </p>
+                
+                <!-- Auth Form -->
+                <div id="auth-form">
+                    <div class="form-group">
+                        <input type="email" id="email" class="form-input" placeholder="Enter your email" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="password" class="form-input" placeholder="Enter your password" required>
+                    </div>
+                    <div class="form-group">
+                        <button id="login-btn" class="btn btn-primary" style="width: 100%; margin-bottom: 1rem;">Login</button>
+                        <button id="signup-btn" class="btn btn-secondary" style="width: 100%;">Sign Up</button>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
 
-    <!-- Auth Screen -->
-    <div id="auth-screen" class="hidden min-h-screen flex items-center justify-center p-4">
-        <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
-            <div class="text-center mb-8">
-                <h1 class="text-3xl font-bold text-green-600 mb-2">🥗 NutriLearn</h1>
-                <p class="text-gray-600">Track your nutrition and stay healthy</p>
+        <!-- Dashboard Section (Hidden initially) -->
+        <div id="dashboard-section" class="hidden">
+            <!-- Subscription Status -->
+            <div id="subscription-status" class="card">
+                <h3>📊 Your Plan</h3>
+                <p>Free Plan - 50 meals per month</p>
+                <button id="upgrade-btn" class="btn btn-primary">Upgrade to Premium</button>
             </div>
-            
-            <!-- Auth Tabs -->
-            <div class="flex mb-6 bg-gray-100 rounded-lg p-1">
-                <button id="login-tab" class="flex-1 py-2 px-4 rounded-md bg-white shadow-sm font-medium text-green-600">Login</button>
-                <button id="signup-tab" class="flex-1 py-2 px-4 rounded-md font-medium text-gray-600">Sign Up</button>
-            </div>
-            
-            <!-- Login Form -->
-            <form id="login-form" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                    <input type="email" id="login-email" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                    <input type="password" id="login-password" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                </div>
-                <button type="submit" class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500">
-                    Login
-                </button>
-            </form>
-            
-            <!-- Signup Form -->
-            <form id="signup-form" class="space-y-4 hidden">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                    <input type="email" id="signup-email" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                    <input type="password" id="signup-password" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Daily Calorie Goal</label>
-                    <input type="number" id="daily-goal" value="2000" min="1000" max="5000" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                </div>
-                <button type="submit" class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500">
-                    Sign Up
-                </button>
-            </form>
-        </div>
-    </div>
 
-    <!-- Dashboard Screen -->
-    <div id="dashboard-screen" class="hidden">
-        <!-- Header -->
-        <header class="bg-white shadow-sm border-b">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between items-center h-16">
-                    <div class="flex items-center space-x-2">
-                        <span class="text-2xl">🥗</span>
-                        <h1 class="text-2xl font-bold text-green-600">NutriLearn</h1>
-                    </div>
-                    <div class="flex items-center space-x-4">
-                        <div id="subscription-status" class="hidden md:block">
-                            <!-- Subscription status will be inserted here -->
+            <!-- Quick Stats -->
+            <div class="card">
+                <h3>📈 Today's Summary</h3>
+                <div id="daily-stats">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                        <div class="text-center">
+                            <div style="font-size: 2rem; font-weight: bold; color: #667eea;" id="calories-consumed">0</div>
+                            <div>Calories</div>
                         </div>
-                        <button id="upgrade-btn" class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded-md text-sm font-medium">
-                            Upgrade Plan
-                        </button>
-                        <span id="user-email" class="text-sm text-gray-600"></span>
-                        <button id="logout-btn" class="bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-md text-sm">
-                            Logout
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </header>
-
-        <!-- Main Content -->
-        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <!-- Nutrition Summary -->
-                <div class="lg:col-span-1">
-                    <div class="bg-white rounded-lg shadow-md p-6">
-                        <h2 class="text-xl font-semibold mb-4">Daily Summary</h2>
-                        <div id="nutrition-chart" class="mb-6">
-                            <canvas id="calorieChart" width="300" height="200"></canvas>
+                        <div class="text-center">
+                            <div style="font-size: 2rem; font-weight: bold; color: #f5576c;" id="protein-consumed">0g</div>
+                            <div>Protein</div>
                         </div>
-                        <div class="grid grid-cols-3 gap-4 text-center">
-                            <div class="bg-red-50 p-3 rounded-lg">
-                                <div id="total-protein" class="text-2xl font-bold text-red-600">0g</div>
-                                <div class="text-sm text-gray-600">Protein</div>
-                            </div>
-                            <div class="bg-blue-50 p-3 rounded-lg">
-                                <div id="total-carbs" class="text-2xl font-bold text-blue-600">0g</div>
-                                <div class="text-sm text-gray-600">Carbs</div>
-                            </div>
-                            <div class="bg-green-50 p-3 rounded-lg">
-                                <div id="total-fat" class="text-2xl font-bold text-green-600">0g</div>
-                                <div class="text-sm text-gray-600">Fat</div>
-                            </div>
+                        <div class="text-center">
+                            <div style="font-size: 2rem; font-weight: bold; color: #4CAF50;" id="carbs-consumed">0g</div>
+                            <div>Carbs</div>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Meals Section -->
-                <div class="lg:col-span-2 space-y-6">
-                    <!-- Add Meal Button -->
-                    <div class="bg-white rounded-lg shadow-md p-6">
-                        <div class="flex justify-between items-center">
-                            <div>
-                                <h2 class="text-xl font-semibold">Today's Meals</h2>
-                                <p id="current-date" class="text-gray-600"></p>
-                            </div>
-                            <button id="add-meal-btn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md flex items-center space-x-2">
-                                <span>+</span>
-                                <span>Add Meal</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Meals List -->
-                    <div id="meals-container">
-                        <div id="no-meals" class="bg-white rounded-lg shadow-md p-12 text-center">
-                            <div class="text-6xl mb-4">🍽️</div>
-                            <h3 class="text-lg font-medium text-gray-600 mb-2">No meals logged today</h3>
-                            <p class="text-gray-500 mb-4">Start tracking your nutrition by adding your first meal</p>
-                            <button class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md" onclick="showAddMeal()">
-                                Add Your First Meal
-                            </button>
+                        <div class="text-center">
+                            <div style="font-size: 2rem; font-weight: bold; color: #ff9800;" id="fat-consumed">0g</div>
+                            <div>Fat</div>
                         </div>
                     </div>
                 </div>
             </div>
-        </main>
-    </div>
 
-    <!-- Add Meal Screen -->
-    <div id="add-meal-screen" class="hidden min-h-screen p-4">
-        <div class="max-w-2xl mx-auto">
-            <div class="flex items-center space-x-4 mb-6">
-                <button id="back-to-dashboard" class="bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-md flex items-center space-x-2">
-                    <span>←</span>
-                    <span>Back to Dashboard</span>
-                </button>
-                <h1 class="text-2xl font-bold text-green-600">Add Meal</h1>
+            <!-- Nutrition Chart -->
+            <div class="card">
+                <h3>📊 Nutrition Breakdown</h3>
+                <canvas id="nutrition-chart" width="400" height="200"></canvas>
             </div>
 
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <h2 class="text-xl font-semibold mb-4">Log Your Meal</h2>
-                <form id="add-meal-form" class="space-y-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Food Item</label>
-                        <select id="food-select" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                            <option value="">Select a food item</option>
-                        </select>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
-                        <input type="number" id="quantity" step="0.1" min="0.1" value="1" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Meal Type</label>
-                        <select id="meal-type" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                            <option value="breakfast">Breakfast</option>
-                            <option value="lunch">Lunch</option>
-                            <option value="dinner">Dinner</option>
-                            <option value="snack">Snack</option>
-                        </select>
-                    </div>
-                    
-                    <!-- Nutrition Preview -->
-                    <div id="nutrition-preview" class="hidden bg-gray-50 p-4 rounded-lg">
-                        <h3 class="font-medium mb-3">Nutrition Preview</h3>
-                        <div class="grid grid-cols-2 gap-4 text-sm">
-                            <div>
-                                <span class="text-gray-600">Calories:</span>
-                                <span id="preview-calories" class="font-medium text-orange-600 ml-2">0</span>
-                            </div>
-                            <div>
-                                <span class="text-gray-600">Protein:</span>
-                                <span id="preview-protein" class="font-medium text-red-600 ml-2">0g</span>
-                            </div>
-                            <div>
-                                <span class="text-gray-600">Carbs:</span>
-                                <span id="preview-carbs" class="font-medium text-blue-600 ml-2">0g</span>
-                            </div>
-                            <div>
-                                <span class="text-gray-600">Fat:</span>
-                                <span id="preview-fat" class="font-medium text-green-600 ml-2">0g</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-md">
-                        Add Meal
-                    </button>
-                </form>
+            <!-- Add Meal Section -->
+            <div class="card">
+                <h3>🍽️ Add Meal</h3>
+                <div class="form-group">
+                    <select id="food-select" class="form-input">
+                        <option value="">Select a food item...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <input type="number" id="portion-size" class="form-input" placeholder="Portion size (grams)" min="1">
+                </div>
+                <button id="add-meal-btn" class="btn btn-primary">Add to Today's Meals</button>
+            </div>
+
+            <!-- Today's Meals -->
+            <div class="card">
+                <h3>🍴 Today's Meals</h3>
+                <div id="meals-list">
+                    <p style="color: #666; text-align: center;">No meals logged yet today</p>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Subscription Modal -->
-    <div id="subscription-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div class="p-6 border-b">
-                <div class="flex justify-between items-center">
-                    <h2 class="text-2xl font-bold text-gray-900">Choose Your Plan</h2>
-                    <button onclick="closeSubscriptionModal()" class="text-gray-400 hover:text-gray-600 text-2xl">×</button>
-                </div>
-                <p class="text-gray-600 mt-2">Unlock premium features and take your nutrition tracking to the next level</p>
+    <div id="subscription-modal" class="modal hidden">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2>Choose Your Plan</h2>
+                <button id="close-modal" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
             </div>
             
-            <div class="p-6">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <!-- Basic Plan -->
-                    <div class="border border-gray-200 rounded-lg p-6 hover:border-green-500 transition-colors">
-                        <div class="text-center mb-6">
-                            <h3 class="text-xl font-bold text-gray-900 mb-2">Basic Plan</h3>
-                            <div class="text-3xl font-bold text-green-600 mb-1">KES 5</div>
-                            <div class="text-gray-500 text-sm">per month</div>
-                        </div>
-                        
-                        <ul class="space-y-3 mb-6">
-                            <li class="flex items-center text-sm">
-                                <span class="text-green-500 mr-2">✓</span>
-                                Track up to 50 meals per month
-                            </li>
-                            <li class="flex items-center text-sm">
-                                <span class="text-green-500 mr-2">✓</span>
-                                Basic nutrition analysis
-                            </li>
-                            <li class="flex items-center text-sm">
-                                <span class="text-green-500 mr-2">✓</span>
-                                Daily progress charts
-                            </li>
-                            <li class="flex items-center text-sm">
-                                <span class="text-green-500 mr-2">✓</span>
-                                Mobile app access
-                            </li>
-                        </ul>
-                        
-                        <button onclick="processSubscription('basic')" class="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-md">
-                            Choose Basic
-                        </button>
-                    </div>
-                    
-                    <!-- Premium Plan -->
-                    <div class="border-2 border-green-500 rounded-lg p-6 relative">
-                        <div class="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                            <span class="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-medium">POPULAR</span>
-                        </div>
-                        
-                        <div class="text-center mb-6">
-                            <h3 class="text-xl font-bold text-gray-900 mb-2">Premium Plan</h3>
-                            <div class="text-3xl font-bold text-green-600 mb-1">KES 10</div>
-                            <div class="text-gray-500 text-sm">per month</div>
-                        </div>
-                        
-                        <ul class="space-y-3 mb-6">
-                            <li class="flex items-center text-sm">
-                                <span class="text-green-500 mr-2">✓</span>
-                                Unlimited meal tracking
-                            </li>
-                            <li class="flex items-center text-sm">
-                                <span class="text-green-500 mr-2">✓</span>
-                                Advanced nutrition analysis
-                            </li>
-                            <li class="flex items-center text-sm">
-                                <span class="text-green-500 mr-2">✓</span>
-                                Weekly & monthly reports
-                            </li>
-                            <li class="flex items-center text-sm">
-                                <span class="text-green-500 mr-2">✓</span>
-                                Custom food database
-                            </li>
-                            <li class="flex items-center text-sm">
-                                <span class="text-green-500 mr-2">✓</span>
-                                Export data to CSV
-                            </li>
-                            <li class="flex items-center text-sm">
-                                <span class="text-green-500 mr-2">✓</span>
-                                Priority support
-                            </li>
-                        </ul>
-                        
-                        <button onclick="processSubscription('premium')" class="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-md">
-                            Choose Premium
-                        </button>
-                    </div>
-                    
-                    <!-- Yearly Plan -->
-                    <div class="border border-gray-200 rounded-lg p-6 hover:border-green-500 transition-colors">
-                        <div class="text-center mb-6">
-                            <h3 class="text-xl font-bold text-gray-900 mb-2">Yearly Plan</h3>
-                            <div class="text-3xl font-bold text-green-600 mb-1">KES 100</div>
-                            <div class="text-gray-500 text-sm">per year</div>
-                            <div class="text-xs text-green-600 font-medium mt-1">Save 17%</div>
-                        </div>
-                        
-                        <ul class="space-y-3 mb-6">
-                            <li class="flex items-center text-sm">
-                                <span class="text-green-500 mr-2">✓</span>
-                                All Premium features
-                            </li>
-                            <li class="flex items-center text-sm">
-                                <span class="text-green-500 mr-2">✓</span>
-                                2 months free
-                            </li>
-                            <li class="flex items-center text-sm">
-                                <span class="text-green-500 mr-2">✓</span>
-                                Nutrition consultation
-                            </li>
-                            <li class="flex items-center text-sm">
-                                <span class="text-green-500 mr-2">✓</span>
-                                Custom meal plans
-                            </li>
-                            <li class="flex items-center text-sm">
-                                <span class="text-green-500 mr-2">✓</span>
-                                API access
-                            </li>
-                        </ul>
-                        
-                        <button onclick="processSubscription('yearly')" class="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-md">
-                            Choose Yearly
-                        </button>
-                    </div>
+            <!-- Basic Plan -->
+            <div class="subscription-plan" data-plan="basic">
+                <h3>Basic Plan</h3>
+                <div class="plan-price">KES 5<span style="font-size: 1rem; color: #666;">/month</span></div>
+                <ul style="margin: 1rem 0;">
+                    <li>✅ Unlimited meal tracking</li>
+                    <li>✅ Nutrition analysis</li>
+                    <li>✅ Basic charts</li>
+                </ul>
+                <div class="payment-methods">
+                    <button class="payment-btn" onclick="selectPaymentMethod('basic', 'mpesa')">
+                        📱 M-Pesa
+                    </button>
+                    <button class="payment-btn" onclick="selectPaymentMethod('basic', 'card')">
+                        💳 Card
+                    </button>
                 </div>
-                
-                <div class="mt-8 text-center">
-                    <p class="text-sm text-gray-600 mb-4">All plans include a 7-day free trial. Cancel anytime.</p>
-                    <div class="flex justify-center space-x-6 text-xs text-gray-500">
-                        <span>🔒 Secure payments via Intasend</span>
-                        <span>📱 M-Pesa & Card payments</span>
-                        <span>🔄 Easy cancellation</span>
-                    </div>
+            </div>
+
+            <!-- Premium Plan -->
+            <div class="subscription-plan" data-plan="premium">
+                <h3>Premium Plan</h3>
+                <div class="plan-price">KES 10<span style="font-size: 1rem; color: #666;">/month</span></div>
+                <ul style="margin: 1rem 0;">
+                    <li>✅ Everything in Basic</li>
+                    <li>✅ Advanced analytics</li>
+                    <li>✅ Export data</li>
+                    <li>✅ Goal setting</li>
+                </ul>
+                <div class="payment-methods">
+                    <button class="payment-btn" onclick="selectPaymentMethod('premium', 'mpesa')">
+                        📱 M-Pesa
+                    </button>
+                    <button class="payment-btn" onclick="selectPaymentMethod('premium', 'card')">
+                        💳 Card
+                    </button>
+                </div>
+            </div>
+
+            <!-- Yearly Plan -->
+            <div class="subscription-plan" data-plan="yearly">
+                <h3>Yearly Plan</h3>
+                <div class="plan-price">KES 100<span style="font-size: 1rem; color: #666;">/year</span></div>
+                <div style="background: #4CAF50; color: white; padding: 0.5rem; border-radius: 5px; margin-bottom: 1rem; text-align: center;">
+                    Save 17%! Best Value
+                </div>
+                <ul style="margin: 1rem 0;">
+                    <li>✅ Everything in Premium</li>
+                    <li>✅ Priority support</li>
+                    <li>✅ Advanced meal planning</li>
+                    <li>✅ Custom recipes</li>
+                </ul>
+                <div class="payment-methods">
+                    <button class="payment-btn" onclick="selectPaymentMethod('yearly', 'mpesa')">
+                        📱 M-Pesa
+                    </button>
+                    <button class="payment-btn" onclick="selectPaymentMethod('yearly', 'card')">
+                        💳 Card
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Toast Notifications -->
-    <div id="toast-container" class="fixed top-4 right-4 z-50"></div>
-
+    <!-- Scripts -->
     <script src="script.js"></script>
     <script src="payment.js"></script>
+
+    <script>
+        // Initialize app when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 NutriLearn App Loaded Successfully');
+            
+            // Check if user is logged in
+            const currentUser = getCurrentUser();
+            if (currentUser) {
+                showDashboard();
+                loadTodaysMeals();
+                updateNutritionChart();
+            }
+            
+            // Load food database
+            populateFoodSelect();
+        });
+    </script>
 </body>
 </html>
