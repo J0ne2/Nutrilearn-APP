@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>NutriLearn App</title>
+  <style>
+    body { font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; margin: 0; padding: 1rem; background: #f7f7fb; color: #222; }
+    .container { max-width: 1000px; margin: 0 auto; }
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    .hidden { display: none; }
+    .card { background: #fff; padding: 1rem; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+    .grid { display: grid; gap: 1rem; grid-template-columns: 1fr 320px; align-items: start; }
+    button { cursor: pointer; padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid #ddd; background: #fff; }
+    .btn-primary { background: #0b76ff; color: #fff; border-color: #0b76ff; }
+    .stats { display: flex; gap: 0.5rem; flex-direction: column; }
+    .stat { background: #fafafa; padding: 0.5rem; border-radius: 6px; text-align: center; }
+    ul { margin: 0; padding: 0; list-style: none; }
+    .form-row { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
+    label { font-size: 0.9rem; color: #555; }
+    input, select { padding: 0.45rem 0.5rem; border-radius: 6px; border: 1px solid #ddd; }
+    #meals-list { margin-top: 0.75rem; }
+    #subscription-modal { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.4); }
+    #subscription-modal .card { width: 320px; }
+  </style>
+  <!-- Chart.js from CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
+  <!-- IntaSend SDK -->
+  <script src="https://cdn.intasend.com/intasend-inline.js" defer></script>
+  <!-- App scripts -->
+  <script type="module" src="/script.js" defer></script>
+  <script type="module" src="/payment.js" defer></script>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>NutriLearn</h1>
+      <div id="nav-buttons"></div>
+    </header>
+
+    <!-- Welcome / Login -->
+    <section id="welcome-section" class="card">
+      <h2>Welcome to NutriLearn</h2>
+      <p>Track meals and view nutrition quickly.</p>
+      <div style="max-width: 420px;">
+        <label for="email">Email</label><br />
+        <input id="email" type="email" placeholder="you@example.com" />
+        <div style="height: 8px;"></div>
+        <label for="password">Password</label><br />
+        <input id="password" type="password" placeholder="password" />
+        <div class="form-row" style="margin-top: 0.5rem;">
+          <button id="login-btn" class="btn-primary">Login</button>
+          <button id="signup-btn">Sign up</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Dashboard -->
+    <section id="dashboard-section" class="hidden">
+      <div class="grid">
+        <div>
+          <div class="card" style="margin-bottom: 1rem;">
+            <h3>Log a Meal</h3>
+            <label for="food-select">Food</label>
+            <select id="food-select"><option value="">Loading…</option></select>
+            <div class="form-row">
+              <div style="flex: 1;">
+                <label for="portion-size">Portion (g)</label>
+                <input id="portion-size" type="number" min="1" placeholder="100" />
+              </div>
+              <div style="display: flex; align-items: end;">
+                <button id="add-meal-btn" class="btn-primary">Add</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="meals-list" class="card">
+            <h3>Today's Meals</h3>
+            <p style="color: #666; text-align: center;">No meals logged yet today</p>
+          </div>
+        </div>
+
+        <aside>
+          <div class="card">
+            <h3>Daily Stats</h3>
+            <div class="stats">
+              <div class="stat">
+                <div>Calories</div>
+                <div id="calories-consumed">0</div>
+              </div>
+              <div class="stat">
+                <div>Protein</div>
+                <div id="protein-consumed">0g</div>
+              </div>
+              <div class="stat">
+                <div>Carbs</div>
+                <div id="carbs-consumed">0g</div>
+              </div>
+              <div class="stat">
+                <div>Fat</div>
+                <div id="fat-consumed">0g</div>
+              </div>
+            </div>
+            <canvas id="nutrition-chart" width="300" height="200" style="margin-top: 0.5rem;"></canvas>
+            <div style="margin-top: 0.75rem;">
+              <button id="upgrade-btn">Upgrade</button>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </div>
+
+  <!-- Subscription modal -->
+  <div id="subscription-modal" class="hidden">
+    <div class="card">
+      <h3>Subscribe</h3>
+      <p>Choose a plan</p>
+      <div style="display: flex; gap: 0.5rem;">
+        <button id="subscribe-card-btn" class="btn-primary">Card</button>
+        <button id="subscribe-mpesa-btn">M-Pesa</button>
+      </div>
+      <div style="margin-top: 0.5rem;">
+        <button id="close-modal">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Inline script to initialize app -->
+  <script type="module">
+    import { getCurrentUser, login, signUp, logout, getFoodItems, logMeal, getUserMeals, saveSubscription } from '/script.js';
+    import { initiatePayment } from '/payment.js';
+
+    async function initApp() {
+      console.log('🚀 NutriLearn App Loaded Successfully');
+      const user = await getCurrentUser();
+      const welcomeSection = document.getElementById('welcome-section');
+      const dashboardSection = document.getElementById('dashboard-section');
+      const navButtons = document.getElementById('nav-buttons');
+
+      if (user) {
+        welcomeSection.classList.add('hidden');
+        dashboardSection.classList.remove('hidden');
+        navButtons.innerHTML = `<button id="logout-btn">Logout</button>`;
+        await updateDashboard(user.id);
+      } else {
+        welcomeSection.classList.remove('hidden');
+        dashboardSection.classList.add('hidden');
+        navButtons.innerHTML = '';
+      }
+
+      // Event listeners
+      document.getElementById('login-btn')?.addEventListener('click', async () => {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const user = await login(email, password);
+        if (user) location.reload();
+      });
+
+      document.getElementById('signup-btn')?.addEventListener('click', async () => {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const user = await signUp(email, password, email.split('@')[0]);
+        if (user) location.reload();
+      });
+
+      document.getElementById('logout-btn')?.addEventListener('click', async () => {
+        await logout();
+        location.reload();
+      });
+
+      document.getElementById('add-meal-btn')?.addEventListener('click', async () => {
+        const user = await getCurrentUser();
+        if (!user) return;
+        const foodSelect = document.getElementById('food-select');
+        const portionSize = parseFloat(document.getElementById('portion-size').value) || 100;
+        const food = JSON.parse(foodSelect.value);
+        await logMeal(
+          user.id,
+          food.name,
+          food.calories * (portionSize / 100),
+          food.protein * (portionSize / 100),
+          food.carbs * (portionSize / 100),
+          food.fats * (portionSize / 100),
+          'lunch',
+          portionSize
+        );
+        await updateDashboard(user.id);
+      });
+
+      document.getElementById('upgrade-btn')?.addEventListener('click', () => {
+        document.getElementById('subscription-modal').classList.remove('hidden');
+      });
+
+      document.getElementById('subscribe-card-btn')?.addEventListener('click', async () => {
+        const user = await getCurrentUser();
+        if (user) {
+          await initiatePayment(user.id, 'monthly', 'card');
+          await saveSubscription(user.id, 'monthly_card');
+        }
+        document.getElementById('subscription-modal').classList.add('hidden');
+      });
+
+      document.getElementById('subscribe-mpesa-btn')?.addEventListener('click', async () => {
+        const user = await getCurrentUser();
+        if (user) {
+          await initiatePayment(user.id, 'monthly', 'mpesa');
+          await saveSubscription(user.id, 'monthly_mpesa');
+        }
+        document.getElementById('subscription-modal').classList.add('hidden');
+      });
+
+      document.getElementById('close-modal')?.addEventListener('click', () => {
+        document.getElementById('subscription-modal').classList.add('hidden');
+      });
+    }
+
+    async function updateDashboard(userId) {
+      const foods = await getFoodItems();
+      const foodSelect = document.getElementById('food-select');
+      foodSelect.innerHTML = foods.map(food => `<option value='${JSON.stringify(food)}'>${food.name}</option>`).join('');
+
+      const meals = await getUserMeals(userId);
+      const mealsList = document.getElementById('meals-list');
+      mealsList.innerHTML = meals.length
+        ? `<h3>Today's Meals</h3><ul>${meals.map(meal => `<li>${meal.food_name} (${meal.portion_size}g): ${meal.calories}kcal</li>`).join('')}</ul>`
+        : `<h3>Today's Meals</h3><p style="color: #666; text-align: center;">No meals logged yet today</p>`;
+
+      const totalCalories = meals.reduce((sum, meal) => sum + meal.calories, 0);
+      const totalProtein = meals.reduce((sum, meal) => sum + meal.protein, 0);
+      const totalCarbs = meals.reduce((sum, meal) => sum + meal.carbs, 0);
+      const totalFat = meals.reduce((sum, meal) => sum + meal.fats, 0);
+      document.getElementById('calories-consumed').textContent = totalCalories.toFixed(0);
+      document.getElementById('protein-consumed').textContent = `${totalProtein.toFixed(1)}g`;
+      document.getElementById('carbs-consumed').textContent = `${totalCarbs.toFixed(1)}g`;
+      document.getElementById('fat-consumed').textContent = `${totalFat.toFixed(1)}g`;
+
+      const ctx = document.getElementById('nutrition-chart').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Calories', 'Protein', 'Carbs', 'Fat'],
+          datasets: [{
+            label: 'Daily Intake',
+            data: [totalCalories, totalProtein, totalCarbs, totalFat],
+            backgroundColor: ['#0b76ff', '#34c759', '#ff9500', '#ff3b30']
+          }]
+        },
+        options: {
+          scales: { y: { beginAtZero: true } }
+        }
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>
