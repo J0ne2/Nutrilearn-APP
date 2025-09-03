@@ -1,226 +1,129 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NutriLearn - Smart Nutrition Tracking</title>
-    <meta name="description" content="Track your nutrition, reach your health goals with NutriLearn - Smart meal tracking with M-Pesa payments">
-    <meta name="author" content="NutriLearn">
-    
-    <!-- Open Graph Meta Tags -->
-    <meta property="og:title" content="NutriLearn - Smart Nutrition Tracking">
-    <meta property="og:description" content="Track your nutrition, reach your health goals with NutriLearn">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://nutrilearnapp.netlify.app">
-    
-    <!-- Favicon -->
-    <link rel="icon" href="https://public-frontend-cos.metadl.com/mgx/img/favicon.png" type="image/png">
-    
-    <!-- Styles -->
-    <link rel="stylesheet" href="styles.css">
-     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script type="module" src="script.js"></script>
-    <script src="payment.js"></script>
-
-    
-    <!-- Chart.js for nutrition charts -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>NutriLearn App</title>
+  <style>
+    /* Minimal styling for demo */
+    body { font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; margin: 0; padding: 1rem; background:#f7f7fb; color:#222; }
+    .container { max-width:1000px; margin:0 auto; }
+    header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; }
+    .hidden { display:none; }
+    .card { background:#fff; padding:1rem; border-radius:8px; box-shadow:0 1px 4px rgba(0,0,0,0.06); }
+    .grid { display:grid; gap:1rem; grid-template-columns: 1fr 320px; align-items:start; }
+    button { cursor:pointer; padding:0.5rem 0.75rem; border-radius:6px; border:1px solid #ddd; background:#fff; }
+    .btn-primary { background:#0b76ff; color:#fff; border-color:#0b76ff; }
+    .stats { display:flex; gap:0.5rem; flex-direction:column; }
+    .stat { background:#fafafa; padding:0.5rem; border-radius:6px; text-align:center; }
+    ul { margin:0; padding:0; list-style:none; }
+    .form-row { display:flex; gap:0.5rem; margin-top:0.5rem; }
+    label { font-size:0.9rem; color:#555; }
+    input, select { padding:0.45rem 0.5rem; border-radius:6px; border:1px solid #ddd; }
+    #meals-list { margin-top:0.75rem; }
+    #subscription-modal { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.4); }
+    #subscription-modal .card { width:320px; }
+  </style>
+  <!-- Chart.js from CDN (deferred) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
+  <!-- App scripts (served from /public when using Netlify/Vite public folder) -->
+  <script src="/payment.js" defer></script>
+  <script src="/script.js" defer></script>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <nav class="nav">
-            <div class="logo">🥗 NutriLearn</div>
-            <div id="nav-buttons">
-                <!-- Navigation buttons will be inserted here -->
-            </div>
-        </nav>
+  <div class="container">
+    <header>
+      <h1>NutriLearn</h1>
+      <div id="nav-buttons"></div>
     </header>
 
-    <!-- Main Container -->
-    <div class="container">
-        <!-- Welcome/Login Section -->
-        <div id="welcome-section" class="card">
-            <div class="text-center">
-                <h1 style="font-size: 2.5rem; margin-bottom: 1rem; background: linear-gradient(45deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-                    Welcome to NutriLearn
-                </h1>
-                <p style="font-size: 1.2rem; margin-bottom: 2rem; color: #666;">
-                    Track your nutrition, reach your health goals
-                </p>
-                
-                <!-- Auth Form -->
-                <div id="auth-form">
-                    <div class="form-group">
-                        <input type="email" id="email" class="form-input" placeholder="Enter your email" required>
-                    </div>
-                    <div class="form-group">
-                        <input type="password" id="password" class="form-input" placeholder="Enter your password" required>
-                    </div>
-                    <div class="form-group">
-                        <button id="login-btn" class="btn btn-primary" style="width: 100%; margin-bottom: 1rem;">Login</button>
-                        <button id="signup-btn" class="btn btn-secondary" style="width: 100%;">Sign Up</button>
-                    </div>
-                </div>
+    <!-- Welcome / Login -->
+    <section id="welcome-section" class="card">
+      <h2>Welcome to NutriLearn</h2>
+      <p>Track meals and view nutrition quickly.</p>
+      <div style="max-width:420px;">
+        <label for="email">Email</label><br />
+        <input id="email" type="email" placeholder="you@example.com" />
+        <div style="height:8px;"></div>
+        <label for="password">Password</label><br />
+        <input id="password" type="password" placeholder="password" />
+        <div class="form-row" style="margin-top:0.5rem;">
+          <button id="login-btn" class="btn-primary">Login</button>
+          <button id="signup-btn">Sign up</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Dashboard -->
+    <section id="dashboard-section" class="hidden">
+      <div class="grid">
+        <div>
+          <div class="card" style="margin-bottom:1rem;">
+            <h3>Log a Meal</h3>
+            <label for="food-select">Food</label>
+            <select id="food-select"><option value="">Loading…</option></select>
+            <div class="form-row">
+              <div style="flex:1;">
+                <label for="portion-size">Portion (g)</label>
+                <input id="portion-size" type="number" min="1" placeholder="100" />
+              </div>
+              <div style="display:flex;align-items:end;">
+                <button id="add-meal-btn" class="btn-primary">Add</button>
+              </div>
             </div>
+          </div>
+
+          <div id="meals-list" class="card">
+            <h3>Today's Meals</h3>
+            <!-- Meals list injected here -->
+            <p style="color:#666; text-align:center;">No meals logged yet today</p>
+          </div>
         </div>
 
-        <!-- Dashboard Section (Hidden initially) -->
-        <div id="dashboard-section" class="hidden">
-            <!-- Subscription Status -->
-            <div id="subscription-status" class="card">
-                <h3>📊 Your Plan</h3>
-                <p>Free Plan - 50 meals per month</p>
-                <button id="upgrade-btn" class="btn btn-primary">Upgrade to Premium</button>
+        <aside>
+          <div class="card">
+            <h3>Daily Stats</h3>
+            <div class="stats">
+              <div class="stat">
+                <div>Calories</div>
+                <div id="calories-consumed">0</div>
+              </div>
+              <div class="stat">
+                <div>Protein</div>
+                <div id="protein-consumed">0g</div>
+              </div>
+              <div class="stat">
+                <div>Carbs</div>
+                <div id="carbs-consumed">0g</div>
+              </div>
+              <div class="stat">
+                <div>Fat</div>
+                <div id="fat-consumed">0g</div>
+              </div>
             </div>
+            <canvas id="nutrition-chart" width="300" height="200" style="margin-top:0.5rem;"></canvas>
+            <div style="margin-top:0.75rem;">
+              <button id="upgrade-btn">Upgrade</button>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </div>
 
-            <!-- Quick Stats -->
-            <div class="card">
-                <h3>📈 Today's Summary</h3>
-                <div id="daily-stats">
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-top: 1rem;">
-                        <div class="text-center">
-                            <div style="font-size: 2rem; font-weight: bold; color: #667eea;" id="calories-consumed">0</div>
-                            <div>Calories</div>
-                        </div>
-                        <div class="text-center">
-                            <div style="font-size: 2rem; font-weight: bold; color: #f5576c;" id="protein-consumed">0g</div>
-                            <div>Protein</div>
-                        </div>
-                        <div class="text-center">
-                            <div style="font-size: 2rem; font-weight: bold; color: #4CAF50;" id="carbs-consumed">0g</div>
-                            <div>Carbs</div>
-                        </div>
-                        <div class="text-center">
-                            <div style="font-size: 2rem; font-weight: bold; color: #ff9800;" id="fat-consumed">0g</div>
-                            <div>Fat</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Nutrition Chart -->
-            <div class="card">
-                <h3>📊 Nutrition Breakdown</h3>
-                <canvas id="nutrition-chart" width="400" height="200"></canvas>
-            </div>
-
-            <!-- Add Meal Section -->
-            <div class="card">
-                <h3>🍽️ Add Meal</h3>
-                <div class="form-group">
-                    <select id="food-select" class="form-input">
-                        <option value="">Select a food item...</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <input type="number" id="portion-size" class="form-input" placeholder="Portion size (grams)" min="1">
-                </div>
-                <button id="add-meal-btn" class="btn btn-primary">Add to Today's Meals</button>
-            </div>
-
-            <!-- Today's Meals -->
-            <div class="card">
-                <h3>🍴 Today's Meals</h3>
-                <div id="meals-list">
-                    <p style="color: #666; text-align: center;">No meals logged yet today</p>
-                </div>
-            </div>
-        </div>
+  <!-- Subscription modal (hidden by default) -->
+  <div id="subscription-modal" class="hidden">
+    <div class="card">
+      <h3>Subscribe</h3>
+      <p>Choose a plan</p>
+      <div style="display:flex;gap:0.5rem;">
+        <button onclick="selectPaymentMethod('monthly', 'card')" class="btn-primary">Card</button>
+        <button onclick="selectPaymentMethod('monthly', 'paypal')">PayPal</button>
+      </div>
+      <div style="margin-top:0.5rem;">
+        <button id="close-modal">Close</button>
+      </div>
     </div>
-
-    <!-- Subscription Modal -->
-    <div id="subscription-modal" class="modal hidden">
-        <div class="modal-content">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                <h2>Choose Your Plan</h2>
-                <button id="close-modal" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
-            </div>
-            
-            <!-- Basic Plan -->
-            <div class="subscription-plan" data-plan="basic">
-                <h3>Basic Plan</h3>
-                <div class="plan-price">KES 5<span style="font-size: 1rem; color: #666;">/month</span></div>
-                <ul style="margin: 1rem 0;">
-                    <li>✅ Unlimited meal tracking</li>
-                    <li>✅ Nutrition analysis</li>
-                    <li>✅ Basic charts</li>
-                </ul>
-                <div class="payment-methods">
-                    <button class="payment-btn" onclick="selectPaymentMethod('basic', 'mpesa')">
-                        📱 M-Pesa
-                    </button>
-                    <button class="payment-btn" onclick="selectPaymentMethod('basic', 'card')">
-                        💳 Card
-                    </button>
-                </div>
-            </div>
-
-            <!-- Premium Plan -->
-            <div class="subscription-plan" data-plan="premium">
-                <h3>Premium Plan</h3>
-                <div class="plan-price">KES 10<span style="font-size: 1rem; color: #666;">/month</span></div>
-                <ul style="margin: 1rem 0;">
-                    <li>✅ Everything in Basic</li>
-                    <li>✅ Advanced analytics</li>
-                    <li>✅ Export data</li>
-                    <li>✅ Goal setting</li>
-                </ul>
-                <div class="payment-methods">
-                    <button class="payment-btn" onclick="selectPaymentMethod('premium', 'mpesa')">
-                        📱 M-Pesa
-                    </button>
-                    <button class="payment-btn" onclick="selectPaymentMethod('premium', 'card')">
-                        💳 Card
-                    </button>
-                </div>
-            </div>
-
-            <!-- Yearly Plan -->
-            <div class="subscription-plan" data-plan="yearly">
-                <h3>Yearly Plan</h3>
-                <div class="plan-price">KES 100<span style="font-size: 1rem; color: #666;">/year</span></div>
-                <div style="background: #4CAF50; color: white; padding: 0.5rem; border-radius: 5px; margin-bottom: 1rem; text-align: center;">
-                    Save 17%! Best Value
-                </div>
-                <ul style="margin: 1rem 0;">
-                    <li>✅ Everything in Premium</li>
-                    <li>✅ Priority support</li>
-                    <li>✅ Advanced meal planning</li>
-                    <li>✅ Custom recipes</li>
-                </ul>
-                <div class="payment-methods">
-                    <button class="payment-btn" onclick="selectPaymentMethod('yearly', 'mpesa')">
-                        📱 M-Pesa
-                    </button>
-                    <button class="payment-btn" onclick="selectPaymentMethod('yearly', 'card')">
-                        💳 Card
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Scripts -->
-    <script src="script.js"></script>
-    <script src="payment.js"></script>
-
-    <script>
-        // Initialize app when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 NutriLearn App Loaded Successfully');
-            
-            // Check if user is logged in
-            const currentUser = getCurrentUser();
-            if (currentUser) {
-                showDashboard();
-                loadTodaysMeals();
-                updateNutritionChart();
-            }
-            
-            // Load food database
-            populateFoodSelect();
-        });
-    </script>
+  </div>
 </body>
 </html>
