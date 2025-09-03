@@ -1,7 +1,7 @@
 import { getCurrentUser } from './script.js';
 
 // Replace with your IntaSend public key
-const INTASEND_PUBLIC_KEY = 'YOUR_INTASEND_PUBLIC_KEY'; // Obtain from IntaSend dashboard
+const INTASEND_PUBLIC_KEY ='ISPubKey_live_3bebe382-f93c-40aa-81a3-020b6a6fae22';// Obtain from IntaSend dashboard
 
 export async function initiatePayment(userId, plan, method) {
   const user = await getCurrentUser();
