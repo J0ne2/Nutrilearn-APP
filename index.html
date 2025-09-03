@@ -4,25 +4,32 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>NutriLearn App</title>
-  <!-- Link to styles.css in root -->
-  <link rel="stylesheet" href="/styles.css" />
-  <!-- Chart.js from CDN -->
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="/src/styles.css" />
+
+  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
+
   <!-- IntaSend SDK -->
   <script src="https://cdn.intasend.com/intasend-inline.js" defer></script>
-  <!-- React entry point -->
-  <script type="module" src="/src/main.jsx" defer></script>
+
+  <!-- React entry -->
+  <script type="module" src="/src/main.jsx"></script>
+
+  <!-- Custom scripts -->
+  <script type="module" src="/src/script.js"></script>
+  <script type="module" src="/src/payment.js"></script>
 </head>
 <body>
   <div class="container">
-    <!-- Root div for React integration -->
     <div id="root"></div>
     <header>
       <h1>NutriLearn</h1>
       <div id="nav-buttons"></div>
     </header>
 
-    <!-- Welcome / Login -->
+    <!-- Welcome -->
     <section id="welcome-section" class="card">
       <h2>Welcome to NutriLearn</h2>
       <p>Track meals and view nutrition quickly.</p>
@@ -68,22 +75,10 @@
           <div class="card">
             <h3>Daily Stats</h3>
             <div class="stats">
-              <div class="stat">
-                <div>Calories</div>
-                <div id="calories-consumed">0</div>
-              </div>
-              <div class="stat">
-                <div>Protein</div>
-                <div id="protein-consumed">0g</div>
-              </div>
-              <div class="stat">
-                <div>Carbs</div>
-                <div id="carbs-consumed">0g</div>
-              </div>
-              <div class="stat">
-                <div>Fat</div>
-                <div id="fat-consumed">0g</div>
-              </div>
+              <div class="stat"><div>Calories</div><div id="calories-consumed">0</div></div>
+              <div class="stat"><div>Protein</div><div id="protein-consumed">0g</div></div>
+              <div class="stat"><div>Carbs</div><div id="carbs-consumed">0g</div></div>
+              <div class="stat"><div>Fat</div><div id="fat-consumed">0g</div></div>
             </div>
             <canvas id="nutrition-chart" width="300" height="200" style="margin-top: 0.5rem;"></canvas>
             <div style="margin-top: 0.75rem;">
@@ -111,6 +106,12 @@
   </div>
 </body>
 </html>
+
+   
+           
+             
+     
+
            
      
        
