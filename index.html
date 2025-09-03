@@ -27,8 +27,6 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
   <!-- IntaSend SDK -->
   <script src="https://cdn.intasend.com/intasend-inline.js" defer></script>
-  <!-- React entry point -->
-  <script type="module" src="/src/main.jsx" defer></script>
 </head>
 <body>
   <div class="container">
@@ -38,7 +36,7 @@
     </header>
 
     <!-- Welcome / Login -->
-    <section id="welcome-section" className="card">
+    <section id="welcome-section" class="card">
       <h2>Welcome to NutriLearn</h2>
       <p>Track meals and view nutrition quickly.</p>
       <div style="max-width: 420px;">
@@ -127,8 +125,8 @@
 
   <!-- Inline script to initialize app -->
   <script type="module">
-    import { getCurrentUser, login, signUp, logout, getFoodItems, logMeal, getUserMeals, saveSubscription } from '/src/main.jsx';
-    import { initiatePayment } from '/src/main.jsx';
+    import { getCurrentUser, login, signUp, logout, getFoodItems, logMeal, getUserMeals, saveSubscription } from '/src/utils/script.js';
+    import { initiatePayment } from '/src/utils/payment.js';
 
     async function initApp() {
       console.log('🚀 NutriLearn App Loaded Successfully');
@@ -255,6 +253,3 @@
   </script>
 </body>
 </html>
-     
-         
-     
